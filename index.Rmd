@@ -1,0 +1,156 @@
+---
+title       : Exploring Temperature Trends in an English Midlands Town
+subtitle    : 
+author      : ChrisW
+job         : 
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      # 
+widgets     : []            # {mathjax, quiz, bootstrap}
+mode        : selfcontained # {standalone, draft}
+knit        : slidify::knit2slides
+---
+
+```{r loadLibraries, echo=FALSE, message=FALSE}
+library(gdata)
+library(lubridate)
+library(mgcv) 
+```
+
+```{r loadData, echo=FALSE}
+weather1 <- read.xls("./Daily1959to1969.xls", stringsAsFactors=FALSE, na.strings=c("", "3276.8", "n/a"),
+               sheet = "sheet1", verbose=F, header=TRUE, encoding = "latin1")
+weather2 <- read.xls("./Daily1970to1989.xls", stringsAsFactors=FALSE, na.strings=c("", "3276.8", "n/a"),
+               sheet = "sheet1",  verbose=F, header=TRUE, encoding = "latin1")
+weather3 <- read.xls("./Daily1990to2000.xls", stringsAsFactors=FALSE, na.strings=c("", "3276.8", "n/a"),
+               sheet = "sheet1", verbose=F, header=TRUE, encoding = "latin1")
+
+# It is assumed that each temperature (except the last) needs to be moved 
+# 'across one column' for the second data set.  This appears to give good 
+# results but does raise uncertainty for the following analysis.
+weather2Adj <- weather2
+weather2Adj[,4] <- weather2[,5]
+weather2Adj[,5] <- weather2[,6]
+weather2Adj[,6] <- weather2[,7]
+weather2Adj[,7] <- weather2[,8]
+weather2Adj[,8] <- weather2[,9]
+
+weather <- rbind(weather1,weather2Adj,weather3)
+
+colnames(weather) <- c("Day",                  "Month",                                      
+                       "Year",                                        "MaximumAirTemperature",   
+                       "MinimumAirTemperature",                       "GrassMininumTemperature",               
+                       "ConcreteMininumTemperature",                  "SoilTemperature10cmSpot", 
+                       "SoilTemperature30cmSpot",                     "SoilTemperature100cmSpot",
+                       "Rain",                                        "WindMean",                  
+                       "WindMax",                                     "SnowDepth")                                  
+
+# Set rainfall to half minimum possible measure when observed as 'trace', and convert to numeric
+weather$Rain[grepl('trace', weather$Rain)] <- 0.05
+weather$Rain <- as.numeric(weather$Rain)
+
+# Add a date column
+weather$date <- as.Date(ISOdate(weather$Year, weather$Month, weather$Day))
+weather$dayOfYear = yday(weather$date)
+```
+
+## Introduction
+
+In thinking about global warming, people often remark that they feel that weather patterns are indeed changing based on individual, local observation.
+
+I have access to approximately 40 years of meteorological data collected during 1959-2000 (approximately) from an amateur weather station in English Midlands to which I once contributed.  (The station now sadly is closed.)
+
+The real purpose was to build an application that could be used to explore the data set.  But can any trends in temperature be identified?
+
+--- .class #id 
+
+## Messy Data
+
+One important thing learned from the Data Science Specialization -- even the simplest data set can contain surprises and needs to be examined! Here some maximum temperature data is actually snowfall, and some minimum temperature data is actually maximum temperature. Subsequent analysis is based on a corrected data set.
+
+```{r plotMax, echo=FALSE, fig.height=5, fig.width=14}
+rawWeather <- rbind(weather1,weather2,weather3)
+colnames(rawWeather) <- c("Day",                  "Month",                                      
+                       "Year",                                        "MaximumAirTemperature",   
+                       "MinimumAirTemperature",                       "GrassMininumTemperature",               
+                       "ConcreteMininumTemperature",                  "SoilTemperature10cmSpot", 
+                       "SoilTemperature30cmSpot",                     "SoilTemperature100cmSpot",
+                       "Rain",                                        "WindMean",                  
+                       "WindMax",                                     "SnowDepth")                                  
+rawWeather$date <- as.Date(ISOdate(rawWeather$Year, rawWeather$Month, rawWeather$Day))
+
+par(mfrow=c(1,2))
+plot(rawWeather$date, rawWeather$MaximumAirTemperature, type='l',
+     main='Raw Max Temp Data Showing mislabelling', xlab='Date', ylab='Max Temperature (C)')
+plot(rawWeather$date, rawWeather$MinimumAirTemperature, type='l',
+     main='Raw Min Temp Data Showing mislabelling', xlab='Date', ylab='Max Temperature (C)')
+par(mfrow=c(1,1))
+```
+
+
+```{r model, echo=FALSE}
+fitGamDate <- function(dates, y_index, dataset) {
+  yVar <- colnames(dataset)[y_index]
+  idx <- dataset$date >= dates[1] &  dataset$date <= dates[2]
+  f <- paste(yVar, 
+             '~',
+             's(dayOfYear, bs = "cc")',
+             '+',
+             's(as.numeric(date), bs = "cr")'
+  )
+  model <- gamm( as.formula(f), 
+                 data = dataset[idx,], method = "REML", 
+                 correlation = corAR1(form = ~ 1 | Year), 
+                 knots = list(dayOfYear = c(0, 366)))
+  model
+}
+
+plotModel <-function(results, dateLimit) {
+  par(mfrow=c(1,2))
+  title <- paste("Annual Cycle:", colnames(weather)[4])
+  plot(results$gam, pages = 0, scale=0, select=1, xlab="Day of Year", main=title)
+  title <- paste("Overall Trend:", dateLimit[1], "to", dateLimit[2])
+  plot(results$gam, pages = 0, scale=0, select=2, xlab="Date (days since 1970-01-01)", main=title)
+  par(mfrow=c(1,1))
+}
+```
+
+
+--- .class #id 
+
+## A Selective View of Temperature Trends
+
+If we look at Max temp from 1960-2000, it *appears* there is a clear trend of increasing temperature, with an overall increase of about 1.5 degrees celsius.  But does this trend consistently appear?  Can you find evidence with other temperature measurements?
+
+```{r fitModel1, echo=FALSE, fig.height=5, fig.width=14}
+dateLimit <- range(weather$date)
+dateLimit[1] <- dateLimit[1] + 365
+res <- fitGamDate(dateLimit, 4, weather)
+plotModel(res, dateLimit)
+```
+
+--- .class #id 
+
+## Changing the perspective
+
+However, extending the time window back one year to include 1959 muddies the picture.  It turns out that 1959 had a memorably warm summer. With the new model, it is no longer clear that temperatures in the late 1990's were any warmer than those seen 40 years earlier.
+
+While this was a only a brief example, it still appears dangerous to use this data set to prove a clear trend of increasing temperature, or at the least a more sophisticated analysis is required.
+
+```{r fitModel2, echo=FALSE, fig.height=5, fig.width=14}
+dateLimit[1] <- dateLimit[1] - 365
+res <- fitGamDate(dateLimit, 4, weather)
+plotModel(res, dateLimit)
+
+#par(mfrow=c(1,2))
+#  plot(model$gam, pages = 1, scale=0)
+#title <- paste("Annual Cycle:", colnames(weather)[4])
+#plot(res$gam, pages = 0, scale=0, select=1, xlab="Day of Year", 
+#     main=title)
+#title <- paste("Overall Trend:", dateLimit[1], "to", dateLimit[2])
+#plot(res$gam, pages = 0, scale=0, select=2, xlab="Date (days since 1970-01-01)",
+#     main=title)
+#par(mfrow=c(1,1))
+```
+
+

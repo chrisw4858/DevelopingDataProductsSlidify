@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Exploring Temperature Trends in an English Midlands Town</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Exploring Temperature Trends in an English Midlands Town">
+  <meta name="author" content="ChrisW">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="./assets/css/ribbons.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>Exploring Temperature Trends in an English Midlands Town</h1>
+    <h2></h2>
+    <p>ChrisW<br/></p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Introduction</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>In thinking about global warming, people often remark that they feel that weather patterns are indeed changing based on individual, local observation.</p>
+
+<p>I have access to approximately 40 years of meteorological data collected during 1959-2000 (approximately) from an amateur weather station in English Midlands to which I once contributed.  (The station now sadly is closed.)</p>
+
+<p>The real purpose was to build an application that could be used to explore the data set.  But can any trends in temperature be identified?</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Messy Data</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>One important thing learned from the Data Science Specialization -- even the simplest data set can contain surprises and needs to be examined! Here some maximum temperature data is actually snowfall, and some minimum temperature data is actually maximum temperature. Subsequent analysis is based on a corrected data set.</p>
+
+<p><img src="assets/fig/plotMax-1.png" alt="plot of chunk plotMax"> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>A Selective View of Temperature Trends</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>If we look at Max temp from 1960-2000, it <em>appears</em> there is a clear trend of increasing temperature, with an overall increase of about 1.5 degrees celsius.  But does this trend consistently appear?</p>
+
+<p><img src="assets/fig/fitModel1-1.png" alt="plot of chunk fitModel1"> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Changing the perspective</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>However, extending the time window back one year to include 1959 muddies the picture.  It turns out that 1959 had a memorably warm summer. With the new model, it is no longer clear that temperatures in the late 1990&#39;s were any warmer than those seen 40 years earlier.</p>
+
+<p>While this was a only a brief example, it still appears dangerous to use this data set to prove a clear trend of increasing temperature, or at the least a more sophisticated analysis is required.</p>
+
+<p><img src="assets/fig/fitModel2-1.png" alt="plot of chunk fitModel2"> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='Introduction'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='Messy Data'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='A Selective View of Temperature Trends'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='Changing the perspective'>
+         4
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>
